@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Ecommerce Store</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: "#313860"
+      }
+    }
+  }
+}
+</script>
+
+<style>
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #313860;
+  color: white;
+  padding: 14px 22px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.15);
+  animation: slideIn .4s ease;
+  z-index: 999;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity:0 }
+  to { transform: translateX(0); opacity:1 }
+}
+
+.loader {
+  border: 3px solid #ddd;
+  border-top: 3px solid #313860;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+</style>
+</head>
+
+<body class="bg-gray-100 p-10">
+
+<div class="max-w-7xl mx-auto space-y-12">
+
+  <!-- HEADER -->
+  <div class="text-center">
+    <h1 class="text-4xl font-bold text-brand">Ecommerce Store</h1>
+    <button onclick="seed()" class="mt-5 bg-brand text-white px-8 py-3 rounded-xl shadow-lg hover:opacity-90 transition">
+      Load Demo Store
+    </button>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div>
+    <h2 class="text-2xl font-semibold mb-6 text-brand">Products</h2>
+    <div id="products" class="grid grid-cols-3 gap-8"></div>
+  </div>
+
+  <!-- CART -->
+  <div class="bg-white rounded-2xl shadow p-6">
+    <h2 class="text-2xl font-semibold mb-4 text-brand">Cart</h2>
+    <div id="cart" class="space-y-3"></div>
+
+    <button id="checkoutBtn"
+      onclick="checkout()"
+      class="mt-4 bg-green-600 text-white px-6 py-3 rounded-lg w-full">
+      Checkout
+    </button>
+  </div>
+
+  <!-- ORDERS -->
+  <div>
+    <h2 class="text-2xl font-semibold mb-6 text-brand">Orders</h2>
+    <div id="orders" class="space-y-5"></div>
+  </div>
+
+</div>
+
+<script>
+function showToast(msg) {
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.innerText = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+async function seed() {
+  await fetch("/api/seed", { method: "POST" });
+  loadData();
+}
+
+async function loadData() {
+  const res = await fetch("/api/shop/data");
+  const { products, cart, orders } = await res.json();
+
+  // PRODUCTS
+  productsDiv.innerHTML = products.map(p => `
+    <div class="bg-white rounded-2xl shadow-lg p-6 space-y-2 hover:shadow-xl transition">
+      <h3 class="font-bold text-lg text-brand">${p.name}</h3>
+      <p class="text-gray-500">Material: ${p.material || "—"}</p>
+      <p class="text-sm">
+        Stock: 
+        <span class="${p.stock < 5 ? "text-red-500" : "text-green-600"}">
+          ${p.stock}
+        </span>
+      </p>
+      <p class="text-xl font-semibold">₹${p.price}</p>
+      <button onclick="add('${p._id}')"
+        class="w-full bg-brand text-white py-2 rounded-lg mt-2 hover:opacity-90">
+        Add to Cart
+      </button>
+    </div>
+  `).join("");
+
+  // CART
+  cartDiv.innerHTML = cart?.items?.length
+    ? cart.items.map(i => `
+      <div class="flex justify-between bg-gray-50 p-3 rounded-lg">
+        <div>
+          <p class="font-semibold">${i.product.name}</p>
+          <p class="text-sm text-gray-500">
+            ₹${i.priceSnapshot} × ${i.quantity}
+          </p>
+        </div>
+        <p class="font-bold">₹${i.priceSnapshot * i.quantity}</p>
+      </div>
+    `).join("")
+    : `<p class="text-gray-400">Your cart is empty</p>`;
+
+  // ORDERS
+  ordersDiv.innerHTML = orders.map(o => `
+    <div class="bg-white rounded-2xl shadow p-5 space-y-3">
+      <div class="flex justify-between">
+        <span class="font-semibold text-brand">Order Total</span>
+        <span class="font-bold">₹${o.totalAmount}</span>
+      </div>
+      <div class="text-sm text-gray-500">
+        Status: ${o.status}
+      </div>
+      <div class="border-t pt-3 space-y-1">
+        ${o.items.map(i => `
+          <div class="flex justify-between text-sm">
+            <span>${i.name} × ${i.quantity}</span>
+            <span>₹${i.price * i.quantity}</span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+}
+
+async function add(id) {
+  await fetch("/api/shop/add/" + id, { method: "POST" });
+  loadData();
+}
+
+async function checkout() {
+  const btn = document.getElementById("checkoutBtn");
+
+  btn.disabled = true;
+  btn.innerHTML = `
+    <span class="flex items-center justify-center gap-2">
+      <div class="loader"></div>
+      Processing Payment...
+    </span>
+  `;
+
+  await fetch("/api/shop/checkout", { method: "POST" });
+
+  btn.innerHTML = "Checkout";
+  btn.disabled = false;
+
+  showToast("Order placed successfully");
+
+  loadData();
+}
+
+const productsDiv = document.getElementById("products");
+const cartDiv = document.getElementById("cart");
+const ordersDiv = document.getElementById("orders");
+
+loadData();
+</script>
+
+</body>
+</html>
