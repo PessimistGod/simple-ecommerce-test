@@ -7,29 +7,26 @@ const router = express.Router();
 /* REGISTER */
 router.post("/register", async (req, res) => {
   try {
-    const {
-      name,
-      email,
-      password,
-      phone,
-      address
-    } = req.body;
+    console.log("REGISTER PAYLOAD:", req.body); // 👈 add this
 
-    const exists = await Customer.findOne({ email });
-    if (exists)
-      return res.status(400).json({ message: "Email already used" });
+    const exists = await Customer.findOne({ email: req.body.email });
+    if (exists) return res.status(400).json({ message: "Email already used" });
 
-    await Customer.create({
-      name,
-      email,
-      phone,
-      passwordHash: password,
-      addresses: [address],
-      preferredAddressIndex: 0
+    const user = new Customer({
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      passwordHash: req.body.password,
+      addresses: [req.body.address]
     });
 
+    await user.save();
+
+    console.log("USER CREATED:", user); // 👈 add this
+
     res.json({ message: "Registered successfully" });
-  } catch {
+  } catch (err) {
+    console.error("REGISTER ERROR:", err);
     res.status(500).json({ message: "Registration failed" });
   }
 });
