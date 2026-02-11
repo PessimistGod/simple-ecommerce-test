@@ -9,6 +9,12 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
+
+app.get("/", (req, res) => {
+  res.sendFile(process.cwd() + "/public/index.html");
+});
+
+
 app.use("/api/seed", seedRoutes);
 app.use("/api/shop", shopRoutes);
 app.use("/api/clear", clearRoutes);
