@@ -10,9 +10,6 @@ app.use(express.json());
 app.use(express.static("public"));
 
 
-app.get("/", (req, res) => {
-  res.sendFile(process.cwd() + "/public/index.html");
-});
 
 
 app.use("/api/seed", seedRoutes);
