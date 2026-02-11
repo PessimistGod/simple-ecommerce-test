@@ -4,14 +4,25 @@ import bcrypt from "bcrypt";
 const SALT_ROUNDS = 12;
 
 const addressSchema = new mongoose.Schema({
-  fullName: { type: String, required: true },
-  phone: { type: String, required: true },
-  street: { type: String, required: true },
-  city: { type: String, required: true },
-  state: { type: String, required: true },
-  postalCode: { type: String, required: true },
-  country: { type: String, required: true }
+  fullName: String,
+  phone: String,
+  street: String,
+
+  country: {
+    name: String,
+    isoCode: String
+  },
+
+  state: {
+    name: String,
+    isoCode: String
+  },
+
+  city: String,
+
+  postalCode: String
 }, { _id: false });
+
 
 const customerSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -32,29 +43,27 @@ const customerSchema = new mongoose.Schema({
     select: false
   },
 
-  addresses: [addressSchema],
-
-  preferredAddressIndex: {
-    type: Number,
-    default: 0
+  role: {
+    type: String,
+    enum: ["ADMIN", "USER"],
+    default: "USER"
   },
 
-  isActive: {
-    type: Boolean,
-    default: true
-  }
+  addresses: [addressSchema],
+
+  preferredAddressIndex: { type: Number, default: 0 },
+
+  isActive: { type: Boolean, default: true }
 
 }, { timestamps: true });
 
 customerSchema.pre("save", async function () {
   if (!this.isModified("passwordHash")) return;
-
   this.passwordHash = await bcrypt.hash(this.passwordHash, SALT_ROUNDS);
 });
 
-
-customerSchema.methods.comparePassword = function (plainPassword) {
-  return bcrypt.compare(plainPassword, this.passwordHash);
+customerSchema.methods.comparePassword = function (plain) {
+  return bcrypt.compare(plain, this.passwordHash);
 };
 
 export default mongoose.model("Customer", customerSchema);
