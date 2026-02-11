@@ -1,21 +1,16 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Shop from "./pages/Shop";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminRoute from "./components/AdminRoute";
-import AdminProducts from "./pages/AdminProducts";
-import AdminCreate from "./pages/AdminCreate";
-
 import PublicRoute from "./components/PublicRoute";
 import RoleShop from "./components/RoleShop";
-
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public (only when NOT logged in) */}
+
+        {/* Public */}
         <Route
           path="/"
           element={
@@ -34,37 +29,16 @@ export default function App() {
           }
         />
 
-        {/* Authenticated user */}
-<Route
-  path="/shop"
-  element={
-    <ProtectedRoute>
-      <RoleShop />
-    </ProtectedRoute>
-  }
-/>
-
-
+        {/* Protected */}
         <Route
-          path="/admin/create"
+          path="/shop"
           element={
             <ProtectedRoute>
-              <AdminCreate />
+              <RoleShop />
             </ProtectedRoute>
           }
         />
 
-        {/* Admin only later */}
-        {/*
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
-        />
-        */}
       </Routes>
     </BrowserRouter>
   );

@@ -133,4 +133,18 @@ router.post("/product", protect, adminOnly, async (req, res) => {
   res.json(product);
 });
 
+
+// UPDATE PRODUCT
+router.put("/product/:id", protect, adminOnly, async (req,res)=>{
+  const p = await Product.findByIdAndUpdate(req.params.id, req.body, { new:true });
+  res.json(p);
+});
+
+// DELETE PRODUCT
+router.delete("/product/:id", protect, adminOnly, async (req,res)=>{
+  await Product.findByIdAndDelete(req.params.id);
+  res.json({ message:"Deleted" });
+});
+
+
 export default router;

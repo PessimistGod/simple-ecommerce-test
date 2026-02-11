@@ -28,7 +28,6 @@ export default function AdminLayout({ children, selected }) {
           onClick={i => nav(i.key)}
           items={[
             { key: "/shop", icon: <AppstoreOutlined />, label: "Products" },
-            { key: "/admin/create", icon: <PlusOutlined />, label: "Create Product" },
             { key: "logout", icon: <LogoutOutlined />, label: "Logout", onClick: logout }
           ]}
         />

@@ -1,4 +1,4 @@
-import jwtDecode from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import AdminProducts from "../pages/AdminProducts";
 import Shop from "../pages/Shop";
 
