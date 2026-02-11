@@ -62,6 +62,10 @@ tailwind.config = {
     <button onclick="seed()" class="mt-5 bg-brand text-white px-8 py-3 rounded-xl shadow-lg hover:opacity-90 transition">
       Load Demo Store
     </button>
+     <button onclick="clearDB()"
+    class="bg-red-600 text-white px-8 py-3 rounded-xl shadow-lg hover:opacity-90 transition">
+    Clear Database
+  </button>
   </div>
 
   <!-- PRODUCTS -->
@@ -168,6 +172,17 @@ async function add(id) {
   await fetch("/api/shop/add/" + id, { method: "POST" });
   loadData();
 }
+
+async function clearDB() {
+  if (!confirm("This will delete all data. Continue?")) return;
+
+  await fetch("/api/clear", { method: "POST" });
+
+  showToast("Database cleared");
+
+  loadData();
+}
+
 
 async function checkout() {
   const btn = document.getElementById("checkoutBtn");
