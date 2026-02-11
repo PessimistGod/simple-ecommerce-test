@@ -11,7 +11,7 @@ export default function Register() {
   const states = State.getStatesOfCountry(country);
   const cities = City.getCitiesOfState(country, state);
 
-  const submit = async e => {
+  const submit = async (e) => {
     e.preventDefault();
     const f = e.target;
 
@@ -24,16 +24,22 @@ export default function Register() {
         fullName: f.name.value,
         phone: f.phone.value,
         street: f.street.value,
-        postalCode: f.postal.value,
         city: f.city.value,
-        country: countries.find(c => c.isoCode === country),
-        state: states.find(s => s.isoCode === state)
-      }
+        postalCode: f.postal.value,
+        country: {
+          name: countries.find((c) => c.isoCode === country)?.name,
+          isoCode: country,
+        },
+        state: {
+          name: states.find((s) => s.isoCode === state)?.name,
+          isoCode: state,
+        },
+      },
     };
 
     const res = await apiFetch("/api/auth/register", {
       method: "POST",
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
@@ -44,56 +50,93 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center items-center">
-
       <div className="bg-white p-10 rounded-2xl shadow-xl max-w-2xl w-full">
         <h2 className="text-3xl font-bold text-[#313860] text-center mb-6">
           Create Account
         </h2>
 
         <form onSubmit={submit} className="grid grid-cols-2 gap-4">
+          <input
+            name="name"
+            placeholder="Full Name"
+            className="border p-3 rounded-lg"
+            required
+          />
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            className="border p-3 rounded-lg"
+            required
+          />
 
-          <input name="name" placeholder="Full Name" className="border p-3 rounded-lg" required />
-          <input name="email" type="email" placeholder="Email" className="border p-3 rounded-lg" required />
+          <input
+            name="phone"
+            placeholder="Phone"
+            className="border p-3 rounded-lg"
+            required
+          />
+          <input
+            name="password"
+            type="password"
+            placeholder="Password"
+            className="border p-3 rounded-lg"
+            required
+          />
 
-          <input name="phone" placeholder="Phone" className="border p-3 rounded-lg" required />
-          <input name="password" type="password" placeholder="Password" className="border p-3 rounded-lg" required />
-
-          <input name="street" placeholder="Street Address" className="border p-3 rounded-lg col-span-2" required />
+          <input
+            name="street"
+            placeholder="Street Address"
+            className="border p-3 rounded-lg col-span-2"
+            required
+          />
 
           {/* Country */}
           <select
-            onChange={e => setCountry(e.target.value)}
+            onChange={(e) => setCountry(e.target.value)}
             className="border p-3 rounded-lg"
-            required>
+            required
+          >
             <option value="">Select Country</option>
-            {countries.map(c => (
-              <option key={c.isoCode} value={c.isoCode}>{c.name}</option>
+            {countries.map((c) => (
+              <option key={c.isoCode} value={c.isoCode}>
+                {c.name}
+              </option>
             ))}
           </select>
 
           {/* State */}
           <select
-            onChange={e => setState(e.target.value)}
+            onChange={(e) => setState(e.target.value)}
             className="border p-3 rounded-lg"
-            required>
+            required
+          >
             <option value="">Select State</option>
-            {states.map(s => (
-              <option key={s.isoCode} value={s.isoCode}>{s.name}</option>
+            {states.map((s) => (
+              <option key={s.isoCode} value={s.isoCode}>
+                {s.name}
+              </option>
             ))}
           </select>
 
           {/* City */}
           <select name="city" className="border p-3 rounded-lg" required>
             <option value="">Select City</option>
-            {cities.map(c => (
-              <option key={c.name} value={c.name}>{c.name}</option>
+            {cities.map((c) => (
+              <option key={c.name} value={c.name}>
+                {c.name}
+              </option>
             ))}
           </select>
 
-          <input name="postal" placeholder="Postal Code" className="border p-3 rounded-lg" required />
+          <input
+            name="postal"
+            placeholder="Postal Code"
+            className="border p-3 rounded-lg"
+            required
+          />
 
-          <button
-            className="col-span-2 bg-[#313860] text-white py-3 rounded-lg hover:opacity-90 transition">
+          <button className="col-span-2 bg-[#313860] text-white py-3 rounded-lg hover:opacity-90 transition">
             Register
           </button>
         </form>
