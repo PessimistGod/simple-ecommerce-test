@@ -21,9 +21,10 @@ app.use("/api/seed", seedRoutes);
 app.use("/api/shop", shopRoutes);
 app.use("/api/clear", clearRoutes);
 
-app.get("*", (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
+
 
 // Connect DB once
 connectDB();
