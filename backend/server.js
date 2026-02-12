@@ -35,6 +35,11 @@ app.use(cors({
 
 app.use(express.json());
 
+
+app.get("/", (req, res) => {
+  res.send("Yes Server is Running");
+})
+
 app.use("/api/auth", authRoutes);
 app.use("/api/seed", seedRoutes);
 app.use("/api/shop", shopRoutes);
