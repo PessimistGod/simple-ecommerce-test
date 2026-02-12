@@ -1,6 +1,7 @@
 import {jwtDecode} from "jwt-decode";
 import AdminProducts from "../pages/AdminProducts";
 import Shop from "../pages/Shop";
+import UserLayout from "./UserLayout";
 
 export default function RoleShop() {
   const token = localStorage.getItem("token");
@@ -8,5 +9,9 @@ export default function RoleShop() {
 
   if (user.role === "ADMIN") return <AdminProducts />;
 
-  return <Shop />;
+  return (
+    <UserLayout>
+      <Shop />
+    </UserLayout>
+  );
 }

@@ -7,9 +7,7 @@ import { protect, adminOnly } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-/* =========================================
-   GET PAGINATED PRODUCTS (PUBLIC OR USER)
-========================================= */
+
 router.get("/products", async (req, res) => {
   const page = Number(req.query.page) || 1;
   const limit = 10;
@@ -37,9 +35,14 @@ router.get("/products", async (req, res) => {
 });
 
 
-/* =========================================
-   ADD TO CART (USER ONLY)
-========================================= */
+router.get("/cart", protect, async (req, res) => {
+  const cart = await Cart.findOne({ customer: req.user.id })
+    .populate("items.product");
+
+  res.json(cart || { items: [] });
+});
+
+
 router.post("/cart/add/:id", protect, async (req, res) => {
   const userId = req.user.id;
 
@@ -74,9 +77,35 @@ router.post("/cart/add/:id", protect, async (req, res) => {
   res.json(cart);
 });
 
-/* =========================================
-   CHECKOUT (USER ONLY)
-========================================= */
+router.put("/cart/update/:id", protect, async (req, res) => {
+  const { quantity } = req.body;
+
+  const cart = await Cart.findOne({ customer: req.user.id });
+
+  const item = cart.items.find(i =>
+    i.product.toString() === req.params.id
+  );
+
+  if (!item) return res.status(404).json({ message: "Item not found" });
+
+  item.quantity = Math.max(1, quantity);
+
+  await cart.save();
+  res.json(cart);
+});
+
+router.delete("/cart/remove/:id", protect, async (req, res) => {
+  const cart = await Cart.findOne({ customer: req.user.id });
+
+  cart.items = cart.items.filter(
+    i => i.product.toString() !== req.params.id
+  );
+
+  await cart.save();
+  res.json(cart);
+});
+
+
 router.post("/checkout", protect, async (req, res) => {
   const userId = req.user.id;
 
@@ -111,7 +140,6 @@ router.post("/checkout", protect, async (req, res) => {
     paidAt: new Date()
   });
 
-  // Reduce stock
   for (const item of cart.items) {
     await Product.findByIdAndUpdate(
       item.product._id,
@@ -125,22 +153,18 @@ router.post("/checkout", protect, async (req, res) => {
   res.json(order);
 });
 
-/* =========================================
-   CREATE PRODUCT (ADMIN ONLY)
-========================================= */
+
 router.post("/product", protect, adminOnly, async (req, res) => {
   const product = await Product.create(req.body);
   res.json(product);
 });
 
 
-// UPDATE PRODUCT
 router.put("/product/:id", protect, adminOnly, async (req,res)=>{
   const p = await Product.findByIdAndUpdate(req.params.id, req.body, { new:true });
   res.json(p);
 });
 
-// DELETE PRODUCT
 router.delete("/product/:id", protect, adminOnly, async (req,res)=>{
   await Product.findByIdAndDelete(req.params.id);
   res.json({ message:"Deleted" });

@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import RoleShop from "./components/RoleShop";
+import Cart from "./pages/Cart";
 
 export default function App() {
   return (
@@ -38,6 +39,15 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+<Route
+  path="/cart"
+  element={
+    <ProtectedRoute>
+      <Cart />
+    </ProtectedRoute>
+  }
+/>
 
       </Routes>
     </BrowserRouter>

@@ -25,7 +25,7 @@ export default function AdminLayout({ children, selected }) {
         <Menu
           theme="dark"
           selectedKeys={[selected]}
-          onClick={i => nav(i.key)}
+          onClick={i => i.key !== "logout" ? nav(i.key) : {}}
           items={[
             { key: "/shop", icon: <AppstoreOutlined />, label: "Products" },
             { key: "logout", icon: <LogoutOutlined />, label: "Logout", onClick: logout }
