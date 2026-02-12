@@ -10,8 +10,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-
-        {/* Public */}
         <Route
           path="/"
           element={
@@ -40,15 +38,14 @@ export default function App() {
           }
         />
 
-<Route
-  path="/cart"
-  element={
-    <ProtectedRoute>
-      <Cart />
-    </ProtectedRoute>
-  }
-/>
-
+        <Route
+          path="/cart"
+          element={
+            <ProtectedRoute>
+              <Cart />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
